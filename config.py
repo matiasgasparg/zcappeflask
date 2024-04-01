@@ -14,4 +14,5 @@ class Config:
 
     DATABASE_NAME = config['DATABASE_NAME']
     TEMPLATE_FOLDER = "templates/"
-    STATIC_FOLDER = "static_folder/"        
+    STATIC_FOLDER = "static_folder/"       
+    
