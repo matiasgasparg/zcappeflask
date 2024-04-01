@@ -1,21 +1,34 @@
 from ..database import DatabaseConnection
 from app.models.date_model import Img_date
+from ..models.exceptions import userNotFound,CustomException,InvalidDataError,duplicateError
+
 class Img(Img_date):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
     @classmethod
-    def get(cls, idimagen):
- 
+    def get(cls, descripcion):
+        try:
+            descripcion = descripcion.upper()  # Convertir la descripción a mayúsculas
 
-        query = """SELECT idimagen, genero, url, descripcion,
-        precio 
-        FROM producto WHERE idimagen = %s"""
-        params = idimagen,
-        result = DatabaseConnection.fetch_one(query, params=params)
+            query = """
+                SELECT idimagen, url, descripcion
+                FROM imagen WHERE descripcion = %s
+            """
+            params = (descripcion,)
+            results = DatabaseConnection.fetch_all(query, params=params)
+    
+            if results:
+                # Si se encontraron resultados, los convertimos en instancias de Img
+                return [cls(**dict(zip(['idimagen', 'url', 'descripcion'], row))) for row in results]
+            else:
+                raise userNotFound(descripcion)  # Si no se encuentra la imagen, lanzar la excepción userNotFound
+        except Exception as e:
+            print("Error al obtener la imagen:", e)
+            return None
+        finally:
+            DatabaseConnection.close_connection()  # Cerrar la conexión después de realizar la consulta
+   
 
-        if result is not None:
-            return cls(**dict(zip(['idimagen', 'genero', 'url', 'descripcion', 'precio'], result)))
-        return None
     @classmethod
     def get_all(cls):
 
@@ -32,46 +45,25 @@ class Img(Img_date):
     @classmethod
     def create(cls, img):
         try:
-            query = """INSERT INTO producto (genero, url, descripcion, precio) 
-                       VALUES (%s, %s, %s, %s)"""  # Corregir la consulta SQL
+            query = """INSERT INTO imagen ( url, descripcion) 
+                       VALUES (%s, %s)"""  # Corregir la consulta SQL
     
-            params = (img.genero, img.url, img.descripcion, img.precio)  # Corregir la tupla de parámetros
+            params = (img.url, img.descripcion)  # Corregir la tupla de parámetros
             DatabaseConnection.execute_query(query, params=params)
             return True
         except Exception as e:
             print("Error al crear la IMAGEN:", e)
             return False
     @classmethod
-    def delete(cls, idimagen):
+    def delete(cls, descripcion):
+        try:
+            descripcion = descripcion.upper()
+            query = """DELETE FROM imagen WHERE UPPER(descripcion) = %s"""
+            params = (descripcion,)
+            DatabaseConnection.execute_query(query, params=params)
+            return True
+        except Exception as e:
+            print("Error al eliminar imágenes:", e)
+            return False
 
-        query = "DELETE FROM producto WHERE idimagen = %s"
-        params = idimagen,
-        DatabaseConnection.execute_query(query, params=params)
-    @classmethod
-    def update(cls,idimagen, campo, nuevo_valor):
-  
-        if campo == 'genero':
-            query = "UPDATE producto SET genero = %s WHERE idimagen = %s"
-        elif campo == 'url':
-            query = "UPDATE producto SET url = %s WHERE idimagen = %s"
-        elif campo == 'descripcion':
-            query = "UPDATE producto SET descripcion = %s WHERE idimagen = %s"
-        elif campo == 'precio':  # Cambiado 'contraseña' a 'password'
-            query = "UPDATE producto SET precio = %s WHERE idimagen = %s"
-    
-        else:
-            raise ValueError("Campo no válido para actualización")
-        print(nuevo_valor, idimagen,query,campo)
-        params = (nuevo_valor, idimagen)
-
-        DatabaseConnection.execute_query(query,params=params)
-
-        return True
-    @classmethod
-    def exists(cls, idimagen):
-        query = "SELECT COUNT(*) FROM producto WHERE idimagen = %s"
-        params = (idimagen,)
-
-        result = DatabaseConnection.fetch_one(query, params=params)
-        return result[0] > 0 
-        
+ 

@@ -3,7 +3,7 @@ import firebase_admin
 from firebase_admin import credentials, storage,initialize_app
 from .routes.user_bp import user_bp
 from .routes.img_bp import img_bp
-
+from .routes.pro_bp import pro_bp
 from config import Config
 from flask_cors import CORS
 from .database import DatabaseConnection
@@ -25,7 +25,9 @@ def init_app():
     DatabaseConnection.set_config(app.config)
 
     app.register_blueprint(user_bp, url_prefix = '/users')
-    app.register_blueprint(img_bp, url_prefix = '/upload')
+    app.register_blueprint(img_bp, url_prefix = '/imagen')
+    app.register_blueprint(pro_bp, url_prefix = '/producto')
+
 
 
     return app

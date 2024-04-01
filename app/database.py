@@ -10,13 +10,15 @@ class DatabaseConnection:
             cls._connection = mysql.connector.connect(
                 host = cls._config['DATABASE_HOST'],
                 user = cls._config['DATABASE_USERNAME'],
+                port = cls._config['DATABASE_PORT'],
+
                 password = cls._config['DATABASE_PASSWORD'],
                 database = cls._config['DATABASE_NAME']  # Nuevo: Agrega la base de datos aquí
 
             )
         
         return cls._connection
-
+ 
     @classmethod
     def set_config(cls, config):
         cls._config = config

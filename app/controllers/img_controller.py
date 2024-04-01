@@ -26,13 +26,39 @@ class imgController:
         else:
             return 'No se encontró ninguna imagen en la solicitud'
     @classmethod
-    def get(cls, idimagen):
-            img = Img.get(idimagen)  # Aquí se espera un ID de imagen
-            if img is not None:
-                return img.serialize(), 200
+    def create(cls):
+        try:
+            # Obtener los datos de la imagen del cuerpo de la solicitud JSON
+            data = request.json
+            url = data['url']
+            descripcion = data['descripcion']
+
+            new_img = Img(**data)
+            print(new_img)
+            # Llamar al método de clase 'create' del modelo de imagen para crear la imagen en la base de datos
+            if Img.create(new_img):
+                return jsonify({'message': 'Imagen creada exitosamente'}), 201
             else:
-                # Si no se encuentra el user, lanza la excepción userNotFound
-                raise userNotFound(idimagen)
+                return jsonify({'message': 'Error al crear imagen'}), 500
+    
+        except Exception as e:
+            # Manejar cualquier error que ocurra durante el proceso de creación de la imagen
+            return jsonify({'message': 'Error en la solicitud'}), 400
+
+    @classmethod
+    def get(cls, descripcion):
+        try:
+            imgs = Img.get(descripcion)  # Aquí se espera una lista de imágenes
+
+            if imgs:
+                serialized_imgs = [img.serialize() for img in imgs]
+                return serialized_imgs, 200
+            else:
+                raise userNotFound(descripcion)  # Si no se encuentran imágenes, lanzar la excepción userNotFound
+        except Exception as e:
+            print("Error al obtener la imagen:", e)
+            return jsonify({'message': 'Error en la solicitud'}), 500
+
     @classmethod
     def get_all(cls):
         """Get all imgs"""
@@ -42,47 +68,13 @@ class imgController:
             imgs.append(img.serialize())
         return imgs, 200
     @classmethod
-    def create(cls):
+    def delete(cls, descripcion):
         try:
-            # Obtener los datos de la imagen del cuerpo de la solicitud JSON
-            data = request.json
-            genero = data['genero']
-            url = data['url']
-            descripcion = data['descripcion']
-            precio = data['precio']
-    
-            # Crear una nueva instancia del modelo de imagen con los datos proporcionados
-            new_img = Img(**data)
-            print(new_img)
-            # Llamar al método de clase 'create' del modelo de imagen para crear la imagen en la base de datos
-            if Img.create(new_img):
-                return jsonify({'message': 'Imagen creada exitosamente'}), 201
+            # Eliminar todas las imágenes con el nombre del álbum (descripción) proporcionado
+            if Img.delete(descripcion):
+                return jsonify({'message': 'Imagen eliminada exitosamente'}), 200
             else:
-                return jsonify({'message': 'Error al crear imagen'}), 500
-
+                raise userNotFound(descripcion)  # Si no se encuentran imágenes para eliminar, lanzar la excepción userNotFound
         except Exception as e:
-            # Manejar cualquier error que ocurra durante el proceso de creación de la imagen
-            return jsonify({'message': 'Error en la solicitud'}), 400
-    @classmethod
-    def update(cls, idimagen):
-        """Update a Img"""
-        data = request.json
-        field_to_update = data.get('field')  # Campo que se desea actualizar
-        value = data.get('value')  # Nuevo valor para el campo
-        valid_fields = ['genero', 'url', 'descripcion', 'precio']  # Lista de campos válidos
-
-        if field_to_update in valid_fields:
-            if Img.update(idimagen, field_to_update, value):
-                return jsonify({'message': f'{field_to_update.capitalize()} actualizado exitosamente'}), 200
-            else:
-                raise userNotFound(idimagen)
-        else:
-            return jsonify({'message': 'Campo no válido para actualización'}), 400
-    @classmethod
-    def delete(cls,idimagen):
-        """Delete a Img"""
-        if not Img.exists(idimagen):
-            raise userNotFound(idimagen)
-
-        Img.delete(idimagen)
-        return {'message': 'Img deleted successfully'}, 204
+            print("Error al eliminar la imagen:", e)
+            return jsonify({'message': 'Error en la solicitud'}), 500        

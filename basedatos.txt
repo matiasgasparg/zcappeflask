@@ -1,0 +1,102 @@
+-- MySQL Workbench Forward Engineering
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+-- -----------------------------------------------------
+-- Schema mydb
+-- -----------------------------------------------------
+-- -----------------------------------------------------
+-- Schema zcappetienda2
+-- -----------------------------------------------------
+
+-- -----------------------------------------------------
+-- Schema zcappetienda2
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `zcappetienda2` DEFAULT CHARACTER SET utf8mb3 ;
+USE `zcappetienda2` ;
+
+-- -----------------------------------------------------
+-- Table `zcappetienda2`.`imagen`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `zcappetienda2`.`imagen` (
+  `idimagen` INT NOT NULL AUTO_INCREMENT,
+  `url` VARCHAR(512) NOT NULL,
+  `descripcion` VARCHAR(100) NULL DEFAULT NULL,
+  PRIMARY KEY (`idimagen`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 270
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `zcappetienda2`.`producto`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `zcappetienda2`.`producto` (
+  `idproducto` INT NOT NULL AUTO_INCREMENT,
+  `genero` VARCHAR(45) NULL DEFAULT NULL,
+  `descripcion` VARCHAR(45) NULL DEFAULT NULL,
+  `precio` VARCHAR(45) NULL DEFAULT NULL,
+  PRIMARY KEY (`idproducto`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 70
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `zcappetienda2`.`producto_has_imagen`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `zcappetienda2`.`producto_has_imagen` (
+  `producto_idproducto` INT NOT NULL,
+  `imagen_idimagen` INT NOT NULL,
+  PRIMARY KEY (`producto_idproducto`, `imagen_idimagen`),
+  INDEX `fk_producto_has_imagen_imagen1_idx` (`imagen_idimagen` ASC) VISIBLE,
+  INDEX `fk_producto_has_imagen_producto1_idx` (`producto_idproducto` ASC) VISIBLE,
+  CONSTRAINT `fk_producto_has_imagen_imagen1`
+    FOREIGN KEY (`imagen_idimagen`)
+    REFERENCES `zcappetienda2`.`imagen` (`idimagen`),
+  CONSTRAINT `fk_producto_has_imagen_producto1`
+    FOREIGN KEY (`producto_idproducto`)
+    REFERENCES `zcappetienda2`.`producto` (`idproducto`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `zcappetienda2`.`usuarios`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `zcappetienda2`.`usuarios` (
+  `id_usuario` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(50) NOT NULL,
+  `username` VARCHAR(45) NOT NULL,
+  `email` VARCHAR(45) NOT NULL,
+  `password` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id_usuario`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 11
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `zcappetienda2`.`producto_has_usuarios`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `zcappetienda2`.`producto_has_usuarios` (
+  `producto_idproducto` INT NOT NULL,
+  `usuarios_id_usuario` INT NOT NULL,
+  PRIMARY KEY (`producto_idproducto`, `usuarios_id_usuario`),
+  INDEX `fk_producto_has_usuarios_usuarios1_idx` (`usuarios_id_usuario` ASC) VISIBLE,
+  INDEX `fk_producto_has_usuarios_producto_idx` (`producto_idproducto` ASC) VISIBLE,
+  CONSTRAINT `fk_producto_has_usuarios_producto`
+    FOREIGN KEY (`producto_idproducto`)
+    REFERENCES `zcappetienda2`.`producto` (`idproducto`),
+  CONSTRAINT `fk_producto_has_usuarios_usuarios1`
+    FOREIGN KEY (`usuarios_id_usuario`)
+    REFERENCES `zcappetienda2`.`usuarios` (`id_usuario`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
